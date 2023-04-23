@@ -1,0 +1,80 @@
+format short
+clear all
+clc
+
+%input parameters
+c=[-1 3 -2];
+info=[3 -1 2;
+    -2 4 0;
+    -4 3 8];
+b=[7;12;10];
+[m n]=size(info);
+s=eye(m);
+A=[info s b];
+cost=zeros(1,size(A,2));%for the zj-cj row
+no_of_variables=3;
+cost(1:no_of_variables)=c;
+
+%constraints BV and zj-cj
+BV=no_of_variables+1:size(A,2)-1;
+zjcj=cost(BV)*A-cost;
+zcj=[zjcj;A];
+simptable=array2table(zcj);
+simptable.Properties.VariableNames(1:size(zcj,2))=...
+{'x1','x2','x3','s1','s2','s3','Xb'}
+%simplex method
+RUN=true;
+while RUN
+    z=zjcj(1:end-1);
+    if any(z<0)
+        fprintf('The current bfs is not optimal \n')
+        fprintf('The next iteration results\n')
+        disp('Old basic variables BV are =')
+        disp(BV)
+
+        %finding the entering variable 
+
+        zc=zjcj(1:end-1);
+        [enterval,pvt_col]=min(zc);
+         fprintf('The entering variable is %d \n',pvt_col)
+
+         %finding the leaving variable
+         sol=A(:,end);
+         column=A(:,pvt_col);
+         for i=1:size(column,1)
+             if(column(i)>0)
+                 ratio(i)=sol(i)./column(i);
+             else
+                 ratio(i)=inf;
+             end
+         end
+         [min_ratio,pvt_row]=min(ratio);
+          fprintf('The leaving variable is %d \n',pvt_row)
+
+          BV(pvt_row)=pvt_col;
+           disp('New basic variables BV are =')
+        disp(BV)
+%pivot key
+pvt_key=A(pvt_row,pvt_col);
+%update the table for the next iteration
+A(pvt_row,:)=A(pvt_row,:)./pvt_key;
+for i=1:size(A,1)
+    if i~=pvt_row
+A(i,:)=A(i,:)-A(i,pvt_col).*A(pvt_row,:);
+    end
+end
+zjcj=cost(BV)*A-cost;
+zcj=[zjcj;A];
+simptable=array2table(zcj);
+simptable.Properties.VariableNames(1:size(zcj,2))={'x1','x2','x3','s1','s2','s3','Xb'}
+%for solution
+bfs=zeros(1,size(A,2));
+bfs(BV)=A(:,end);
+bfs(end)=sum(bfs.*cost);
+current_bfs=array2table(bfs);
+current_bfs.Properties.VariableNames(1:size(current_bfs,2))={'x1','x2','x3','s1','s2','s3','Xb'}
+    else
+        RUN=false;
+         fprintf('The current bfs is  optimal \n')
+    end
+end

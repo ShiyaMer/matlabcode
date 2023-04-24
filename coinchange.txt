@@ -1,44 +1,27 @@
 #include <bits/stdc++.h>
 using namespace std;
-long getNumberOfWays(long N, vector<long> Coins)
-{
-	
-	vector<long> ways(N + 1);
 
-	ways[0] = 1;
+int countWays(int coins[], int n, int amount) {
+    int dp[amount + 1];
+    memset(dp, 0, sizeof(dp)); // Initialize all values to 0
 
+    dp[0] = 1; // Base case: There is only one way to make 0 amount, i.e., by selecting no coins.
 
-	for(int i = 0; i < Coins.size(); i++)
-	{
-		
-		for(int j = 0; j < ways.size(); j++)
-		{
-			if (Coins[i] <= j)
-			{
-				
-			
-				ways[j] += ways[(j - Coins[i])];
-			}
-		}
-	}
+    for (int i = 0; i < n; i++) {
+        for (int j = coins[i]; j <= amount; j++) {
+            dp[j] += dp[j - coins[i]];
+        }
+    }
 
-	
-	return ways[N];
+    return dp[amount];
 }
 
-void printArray(vector<long> coins)
-{
-	for(long i : coins)
-		cout << i << "\n";
-}
-int main()
-{
-	vector<long> Coins = { 1, 5, 10 };
-	
-	cout << "The Coins Array:" << endl;
-	printArray(Coins);
-	
-	cout << "Solution:" << endl;
-	cout << getNumberOfWays(12, Coins) << endl;
-}
+int main() {
+    int coins[] = {1, 2, 5};
+    int n = sizeof(coins) / sizeof(coins[0]);
+    int amount = 12;
 
+    cout << "Number of ways to make " << amount << " cents using given coins: " << countWays(coins, n, amount) << endl;
+
+    return 0;
+}

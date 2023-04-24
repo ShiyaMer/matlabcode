@@ -1,92 +1,45 @@
-#include <bits/stdc++.h>
+
+#include <iostream>
 using namespace std;
- 
-#define ARRAYSIZE(a) (sizeof(a))/(sizeof(a[0]))
-static int total_nodes;
- 
-void printSubset(int A[], int size)
+
+bool isSubsetSum(int set[], int n, int sum)
 {
-              for(int i = 0; i < size; i++)
-              {
-                           cout<<" "<< A[i];
-              }
-              cout<<"\n";
+	bool subset[n + 1][sum + 1];
+
+	for (int i = 0; i <= n; i++)
+		subset[i][0] = true;
+
+	for (int i = 1; i <= sum; i++)
+		subset[0][i] = false;
+
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= sum; j++) {
+			if (j < set[i - 1])
+				subset[i][j] = subset[i - 1][j];
+			if (j >= set[i - 1])
+				subset[i][j] = subset[i - 1][j]
+							|| subset[i - 1][j - set[i - 1]];
+		}
+	}
+
+	for (int i = 0; i <= n; i++)
+	{
+	for (int j = 0; j <= sum; j++)
+		cout<<subset[i][j]<<" ";
+	cout <<"\n";
+	}
+
+	return subset[n][sum];
 }
- 
-int comparator(const void *pLhs, const void *pRhs)
-{
-              int *lhs = (int *)pLhs;
-              int *rhs = (int *)pRhs;
-              return *lhs > *rhs;
-}
-void subset_sum(int s[], int t[],
-                                                       int s_size, int t_size,
-                                                       int sum, int ite,
-                                                       int const target_sum)
-{
-              total_nodes++;
- 
-              if( target_sum == sum )
-              {
-              
-                           printSubset(t, t_size);
- 
- 
-                           if( ite + 1 < s_size && sum - s[ite] + s[ite + 1] <= target_sum )
-                           {
-                           
-                                         subset_sum(s, t, s_size, t_size - 1, sum - s[ite], ite + 1, target_sum);
-                           }
-                           return;
-              }
-              else
-              {
-              
-                           
-                           if( ite < s_size && sum + s[ite] <= target_sum )
-                           {
-                           
-                                         // generate nodes along the breadth
-                                         for( int i = ite; i < s_size; i++ )
-                                         {
-                                                       t[t_size] = s[i];
-                                                       if( sum + s[i] <= target_sum )
-                                                       {
-                                                       
-                                                                    // consider next level node (along depth)
-                                                                    subset_sum(s, t, s_size, t_size + 1, sum + s[i], i + 1, target_sum);
-                                                       }
-                                         }
-                           }
-              }
-}
- 
- 
-void generateSubsets(int s[], int size, int target_sum)
-{
-              int *tuplet_vector = (int *)malloc(size * sizeof(int));
-              int total = 0;
- 
-              // sort the set
-              qsort(s, size, sizeof(int), &comparator);
-              for( int i = 0; i < size; i++ )
-              {
-                           total += s[i];
-              }
-              if( s[0] <= target_sum && total >= target_sum )
-              {
-                           subset_sum(s, tuplet_vector, size, 0, 0, 0, target_sum);
-              }
-              free(tuplet_vector);
-}
- 
- 
+
 int main()
 {
-              int weights[] = {15, 22, 14, 26, 32, 9, 16, 8};
-              int target = 53;
-              int size = ARRAYSIZE(weights);
-              generateSubsets(weights, size, target);
-              cout << "Nodes generated " << total_nodes;
-              return 0;
+	int set[] = { 3, 34, 4, 12, 5, 2 };
+	int sum = 9;
+	int n = sizeof(set) / sizeof(set[0]);
+	if (isSubsetSum(set, n, sum) == true)
+		cout <<"Found a subset with given sum";
+	else
+		cout <<"No subset with given sum";
+	return 0;
 }
